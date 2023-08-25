@@ -1,26 +1,66 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
-import { UpdatePublicationDto } from './dto/update-publication.dto';
+import { PublicationsRepository } from './publications.repository';
+import { PostsRepository } from '../posts/posts.repository';
+import { MediasRepository } from '../medias/medias.repository';
 
 @Injectable()
 export class PublicationsService {
-  create(createPublicationDto: CreatePublicationDto) {
-    return 'This action adds a new publication';
+  constructor(
+    private readonly publicationRepository: PublicationsRepository,
+    private readonly postsRepository: PostsRepository,
+    private readonly mediasRepository: MediasRepository
+  ) { }
+
+  async createPublication(createPublicationDto: CreatePublicationDto) {
+    if (!createPublicationDto.mediaId || !createPublicationDto.postId || !createPublicationDto.date) {
+      throw new BadRequestException()
+    }
+
+    const mediaFind = await this.mediasRepository.findOne(Number(createPublicationDto.mediaId))
+    if(!mediaFind) throw new NotFoundException()
+
+    const postFind = await this.postsRepository.findOne(Number(createPublicationDto.postId))  
+    if (!postFind) throw new NotFoundException()
+
+    return await this.publicationRepository.createPublication(createPublicationDto)
   }
 
-  findAll() {
-    return `This action returns all publications`;
+  async findAll() {
+    return await this.publicationRepository.findAll()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} publication`;
+  async findOne(id: number) {
+    const findPublication = await this.publicationRepository.findOne(id)
+    if (!findPublication) throw new NotFoundException()
+
+    return findPublication
   }
 
-  update(id: number, updatePublicationDto: UpdatePublicationDto) {
-    return `This action updates a #${id} publication`;
+  async update(id: number, updatePublicationDto: CreatePublicationDto) {
+    const findPublication = await this.publicationRepository.findOne(id)
+    if (!findPublication) throw new NotFoundException()
+
+    const mediaFind = await this.mediasRepository.findOne(Number(updatePublicationDto.mediaId))
+    if(!mediaFind) throw new NotFoundException()
+
+    const postFind = await this.postsRepository.findOne(Number(updatePublicationDto.postId))  
+    if (!postFind) throw new NotFoundException()
+
+    const timePost = findPublication.date.getTime()
+    const timeNow = new Date().getTime()
+
+    if(timePost < timeNow) {
+      throw new ForbiddenException()
+    } 
+
+    return await this.publicationRepository.update(id, updatePublicationDto)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} publication`;
+  async remove(id: number) {
+    const findPublication = await this.publicationRepository.findOne(id)
+    if (!findPublication) throw new NotFoundException()
+    
+    return await this.publicationRepository.remove(id)
   }
 }

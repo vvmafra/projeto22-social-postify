@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMediaDto } from './dto/create-media.dto';
-import { UpdateMediaDto } from './dto/update-media.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -34,7 +33,7 @@ export class MediasRepository {
     })
   }
 
-  update(id: number, updateMediaDto: UpdateMediaDto) {
+  update(id: number, updateMediaDto: CreateMediaDto) {
     return this.prisma.medias.update({
       where:{
         id: Number(id)

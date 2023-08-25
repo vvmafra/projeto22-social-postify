@@ -1,26 +1,51 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
-import { UpdatePublicationDto } from './dto/update-publication.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PublicationsRepository {
-  create(createPublicationDto: CreatePublicationDto) {
-    return 'This action adds a new publication';
+  constructor(private readonly prisma: PrismaService) { }
+
+  async createPublication(createPublicationDto: CreatePublicationDto) {
+    return await this.prisma.publications.create({
+      data: {
+        postId: createPublicationDto.postId,
+        mediaId: createPublicationDto.mediaId,
+        date: createPublicationDto.date
+      } 
+    })
   }
 
-  findAll() {
-    return `This action returns all publications`;
+  async findAll() {
+    return await this.prisma.publications.findMany()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} publication`;
+  async findOne(id: number) {
+    return await this.prisma.publications.findUnique({
+      where: {
+        id: Number(id)
+      }
+    })
   }
 
-  update(id: number, updatePublicationDto: UpdatePublicationDto) {
-    return `This action updates a #${id} publication`;
+  async update(id: number, updatePublicationDto: CreatePublicationDto) {
+    return await this.prisma.publications.update({
+      where: {
+        id: Number(id)
+      },
+      data: {
+        postId: updatePublicationDto.postId,
+        mediaId: updatePublicationDto.mediaId,
+        date: updatePublicationDto.date
+      }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} publication`;
+  async remove(id: number) {
+    return await this.prisma.publications.delete({
+      where: {
+        id: Number(id)
+      }
+    })
   }
 }

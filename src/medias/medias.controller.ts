@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { MediasService } from './medias.service';
 import { CreateMediaDto } from './dto/create-media.dto';
-import { UpdateMediaDto } from './dto/update-media.dto';
 
 @Controller('medias')
 export class MediasController {
@@ -23,7 +22,7 @@ export class MediasController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateMediaDto: UpdateMediaDto) {
+  async update(@Param('id') id: number, @Body() updateMediaDto: CreateMediaDto) {
     return await this.mediasService.update(id, updateMediaDto);
   }
 

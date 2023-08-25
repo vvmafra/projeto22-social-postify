@@ -1,6 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMediaDto } from './dto/create-media.dto';
-import { UpdateMediaDto } from './dto/update-media.dto';
 import { MediasRepository } from './medias.repository';
 
 @Injectable()
@@ -24,7 +23,7 @@ export class MediasService {
     return await this.mediaRepository.findOne(id)
   }
 
-  async update(id: number, updateMediaDto: UpdateMediaDto) {
+  async update(id: number, updateMediaDto: CreateMediaDto) {
     const findUserMedia = await this.mediaRepository.findOne(id)
     if (!findUserMedia) throw new NotFoundException()
 
