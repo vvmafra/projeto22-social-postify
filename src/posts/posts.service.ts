@@ -1,26 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostsRepository } from './posts.repository';
 
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  constructor(private readonly postsRepository: PostsRepository) {}
+
+  async createPost(createPostDto: CreatePostDto) {
+    if (!createPostDto.text || !createPostDto.title) throw new BadRequestException()
+
+    return await this.postsRepository.createPost(createPostDto)
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll() {
+    return await this.postsRepository.findAll()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number) {
+    const postFind = await this.postsRepository.findOne(id)
+    if (!postFind) throw new NotFoundException()
+
+    return postFind
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, updatePostDto: UpdatePostDto) {
+    const postFind = await this.postsRepository.findOne(id)
+    if (!postFind) throw new NotFoundException()
+
+    return await this.postsRepository.update(id, updatePostDto)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number) {
+    const postFind = await this.postsRepository.findOne(id)
+    if (!postFind) throw new NotFoundException()
+
+    //O post só pode ser deletado se não estiver fazendo 
+    //parte de nenhuma publicação (agendada ou publicada). 
+    //Neste caso, retornar o status code 403 Forbidden.
+
+    return await this.postsRepository.remove(id)
   }
 }
