@@ -418,10 +418,11 @@ describe('AppController (e2e)', () => {
     await request(app.getHttpServer())
     .post('/publications')
     .send({
-      mediaId: media.id,
-      postId: post.id,
+      mediaId: Number(media.id),
+      postId: Number(post.id),
       date: "2030-09-25T15:30:00.000Z"
     })
     .expect(201)
+
   })
 });
