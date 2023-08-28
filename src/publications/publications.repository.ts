@@ -6,12 +6,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PublicationsRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  async createPublication(createPublicationDto: CreatePublicationDto) {
+  async createPublication(postId: number, mediaId: number, date: Date) {
     return await this.prisma.publications.create({
       data: {
-        postId: createPublicationDto.postId,
-        mediaId: createPublicationDto.mediaId,
-        date: createPublicationDto.date
+        postId: postId,
+        mediaId: mediaId,
+        date: date
       } 
     })
   }

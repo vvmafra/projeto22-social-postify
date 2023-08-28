@@ -24,7 +24,10 @@ export class MediasService {
   }
 
   async findOne(id: number) {
-    return await this.mediaRepository.findOne(id)
+    const mediaFind = await this.mediaRepository.findOne(id)
+    if (!mediaFind) throw new NotFoundException()
+
+    return mediaFind
   }
 
   async update(id: number, updateMediaDto: CreateMediaDto) {
@@ -42,7 +45,7 @@ export class MediasService {
     if (!findUserMedia) throw new NotFoundException()
 
     const findPubliMediaId = await this.publicationRepository.findOneMediaID(id)
-    if (findPubliMediaId) throw new ForbiddenException()
+    if (findPubliMediaId.length > 0) throw new ForbiddenException()
 
     return await this.mediaRepository.remove(id)
   }

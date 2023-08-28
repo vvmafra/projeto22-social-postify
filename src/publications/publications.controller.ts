@@ -8,7 +8,10 @@ export class PublicationsController {
 
   @Post()
   async create(@Body() createPublicationDto: CreatePublicationDto) {
-    return await this.publicationsService.createPublication(createPublicationDto);
+    const postId = createPublicationDto.postId
+    const mediaId = createPublicationDto.mediaId
+    const date = createPublicationDto.date
+    return await this.publicationsService.createPublication(postId, mediaId, date);
   }
 
   @Get()

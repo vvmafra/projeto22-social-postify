@@ -39,7 +39,7 @@ export class PostsService {
     if (!postFind) throw new NotFoundException()
 
     const findPubliMediaId = await this.publicationRepository.findOnePostID(id)
-    if (findPubliMediaId) throw new ForbiddenException()
+    if (findPubliMediaId.length > 0) throw new ForbiddenException()
 
     return await this.postsRepository.remove(id)
   }

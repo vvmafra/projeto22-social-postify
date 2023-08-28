@@ -12,18 +12,19 @@ export class PublicationsService {
     private readonly mediasRepository: MediasRepository
   ) { }
 
-  async createPublication(createPublicationDto: CreatePublicationDto) {
-    if (!createPublicationDto.mediaId || !createPublicationDto.postId || !createPublicationDto.date) {
+  async createPublication(postId: number, mediaId: number, date: Date) {
+    if (!mediaId || !postId) {
+      
       throw new BadRequestException()
     }
 
-    const mediaFind = await this.mediasRepository.findOne(Number(createPublicationDto.mediaId))
+    const mediaFind = await this.mediasRepository.findOne(Number(mediaId))
     if(!mediaFind) throw new NotFoundException()
 
-    const postFind = await this.postsRepository.findOne(Number(createPublicationDto.postId))  
+    const postFind = await this.postsRepository.findOne(Number(postId))  
     if (!postFind) throw new NotFoundException()
 
-    return await this.publicationRepository.createPublication(createPublicationDto)
+    return await this.publicationRepository.createPublication(postId, mediaId, date)
   }
 
   async findAll() {

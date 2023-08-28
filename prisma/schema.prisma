@@ -32,7 +32,7 @@ model Publications {
   id      Int      @id @default(autoincrement())
   mediaId Int
   postId  Int
-  date    DateTime
+  date    DateTime @default(now())
 
   media Medias @relation(fields: [mediaId], references: [id])
   post  Posts  @relation(fields: [postId], references: [id])
