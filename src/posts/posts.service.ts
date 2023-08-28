@@ -1,10 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostsRepository } from './posts.repository';
+import { PublicationsRepository } from '../publications/publications.repository';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly postsRepository: PostsRepository) {}
+  constructor(
+    private readonly postsRepository: PostsRepository,
+    private readonly publicationRepository: PublicationsRepository
+    ) {}
 
   async createPost(createPostDto: CreatePostDto) {
     if (!createPostDto.text || !createPostDto.title) throw new BadRequestException()
@@ -34,9 +38,8 @@ export class PostsService {
     const postFind = await this.postsRepository.findOne(id)
     if (!postFind) throw new NotFoundException()
 
-    //O post só pode ser deletado se não estiver fazendo 
-    //parte de nenhuma publicação (agendada ou publicada). 
-    //Neste caso, retornar o status code 403 Forbidden.
+    const findPubliMediaId = await this.publicationRepository.findOnePostID(id)
+    if (findPubliMediaId) throw new ForbiddenException()
 
     return await this.postsRepository.remove(id)
   }

@@ -1,10 +1,14 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { MediasRepository } from './medias.repository';
+import { PublicationsRepository } from '../publications/publications.repository';
 
 @Injectable()
 export class MediasService {
-  constructor(private readonly mediaRepository: MediasRepository) {}
+  constructor(
+    private readonly mediaRepository: MediasRepository,
+    private readonly publicationRepository: PublicationsRepository
+    ) {}
 
   async createMedia(createMediaDto: CreateMediaDto) {
     if (!createMediaDto.title || !createMediaDto.username) throw new BadRequestException()
@@ -37,9 +41,8 @@ export class MediasService {
     const findUserMedia = await this.mediaRepository.findOne(id)
     if (!findUserMedia) throw new NotFoundException()
 
-    // A media só pode ser deletada se não estiver fazendo 
-    //parte de nenhuma publicação (agendada ou publicada). 
-    //Neste caso, retornar o status code 403 Forbidden.
+    const findPubliMediaId = await this.publicationRepository.findOneMediaID(id)
+    if (findPubliMediaId) throw new ForbiddenException()
 
     return await this.mediaRepository.remove(id)
   }

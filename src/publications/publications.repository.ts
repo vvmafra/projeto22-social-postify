@@ -28,6 +28,22 @@ export class PublicationsRepository {
     })
   }
 
+  async findOneMediaID(mediaId: number){
+    return await this.prisma.publications.findMany({
+      where: {
+        mediaId: Number(mediaId)
+      }
+    })
+  }
+
+  async findOnePostID(postId: number){
+    return await this.prisma.publications.findMany({
+      where: {
+        postId: Number(postId)
+      }
+    })
+  }
+
   async update(id: number, updatePublicationDto: CreatePublicationDto) {
     return await this.prisma.publications.update({
       where: {
