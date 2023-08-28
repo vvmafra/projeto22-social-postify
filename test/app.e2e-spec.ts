@@ -413,16 +413,227 @@ describe('AppController (e2e)', () => {
       }
     })
 
+    await request(app.getHttpServer())
+      .post('/publications')
+      .send({
+        mediaId: media.id,
+        postId: post.id,
+        date: new Date(faker.date.future())
+      })
+      .expect(201)
+  })
+
+  it('/publications (POST) mediaId and postId do not exist', async () => {
+    const media = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
     console.log(post)
 
     await request(app.getHttpServer())
-    .post('/publications')
-    .send({
-      mediaId: Number(media.id),
-      postId: Number(post.id),
-      date: "2030-09-25T15:30:00.000Z"
-    })
-    .expect(201)
-
+      .post('/publications')
+      .send({
+        mediaId: media.id + 1,
+        postId: post.id + 1,
+        date: new Date(faker.date.future())
+      })
+      .expect(404)
   })
+
+  it('/publications (POST) no date in the body', async () => {
+    const media = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
+    await request(app.getHttpServer())
+      .post('/publications')
+      .send({
+        mediaId: media.id + 1,
+        postId: post.id + 1
+      })
+      .expect(400)
+  })
+
+  //GET Publications
+
+  it('/publications (GET)', async () => {
+    const media = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
+    const publication = await prisma.publications.create({
+      data: {
+        postId: post.id,
+        mediaId: media.id,
+        date: new Date(Date.now()).toISOString()
+      }
+    })
+
+    let response = await request(app.getHttpServer()).get('/publications')
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveLength(1)
+  })
+
+  it('/publications/:id (GET)', async () => {
+    const media = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
+    const publication = await prisma.publications.create({
+      data: {
+        postId: post.id,
+        mediaId: media.id,
+        date: new Date(Date.now()).toISOString()
+      }
+    })
+
+    let response = await request(app.getHttpServer()).get(`/publications/${publication.id}`)
+    expect(response.statusCode).toBe(200);
+    expect(response.body.postId).toBe(publication.postId)
+    expect(response.body.mediaId).toBe(publication.mediaId)
+  })
+
+  it('/publications/:id (GET) id does not exist', async () => {
+    const media = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
+    const publication = await prisma.publications.create({
+      data: {
+        postId: post.id,
+        mediaId: media.id,
+        date: new Date(Date.now()).toISOString()
+      }
+    })
+
+    let response = await request(app.getHttpServer()).get(`/publications/${publication.id + 1}`)
+    expect(response.statusCode).toBe(404);
+  })
+
+  it('/publications/:id (PUT)', async () => {
+    const media = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
+    const media2 = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post2 = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
+    const publication = await prisma.publications.create({
+      data: {
+        postId: post.id,
+        mediaId: media.id,
+        date: new Date(faker.date.future())
+      }
+    })
+
+    let response = await request(app.getHttpServer())
+      .put(`/publications/${publication.id}`)
+      .send({
+        postId: post2.id,
+        mediaId: media2.id,
+        date: new Date(faker.date.future())
+      })
+    expect(response.statusCode).toBe(200);
+  })
+
+  it('/publications/:id (DELETE)', async () => {
+    const media = await prisma.medias.create({
+      data: {
+        title: faker.company.name(),
+        username: faker.person.lastName()
+      }
+    })
+
+    const post = await prisma.posts.create({
+      data: {
+        title: faker.company.name(),
+        text: faker.company.catchPhrase()
+      }
+    })
+
+    const publication = await prisma.publications.create({
+      data: {
+        postId: post.id,
+        mediaId: media.id,
+        date: new Date(faker.date.future())
+      }
+    })
+
+    let response = await request(app.getHttpServer())
+      .delete(`/publications/${publication.id}`)
+    expect(response.statusCode).toBe(200);
+  })
+
+
 });

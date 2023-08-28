@@ -11,7 +11,7 @@ export class PublicationsRepository {
       data: {
         postId: postId,
         mediaId: mediaId,
-        date: date
+        date: new Date(date)
       } 
     })
   }
